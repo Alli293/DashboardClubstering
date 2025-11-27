@@ -30,9 +30,24 @@ COL_CAT_SEM = "categoria_semantica_final"
 # ---------------------------
 @st.cache_data
 def load_data(path="dataset_clustering_semantico_2nivel_nombres.csv"):
-    return pd.read_csv(path)
+    try:
+        df = pd.read_csv(path)
+        if df.empty:
+            raise ValueError("El archivo CSV está vacío.")
+        return df
+    except pd.errors.EmptyDataError:
+        raise ValueError("El CSV no contiene datos (EmptyDataError).")
+    except FileNotFoundError:
+        raise FileNotFoundError(f"No se encontró el archivo en la ruta: {path}")
+    except Exception as e:
+        raise RuntimeError(f"Error inesperado al cargar el CSV: {e}")
 
-df = load_data()
+# ==== CARGA PROTEGIDA ====
+try:
+    df = load_data()
+except Exception as e:
+    st.error(f"Error cargando el CSV: {e}")
+    st.stop()
 
 # ---------------------------
 # LIMPIEZA: quitar Administración / Oficina
@@ -186,3 +201,4 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
