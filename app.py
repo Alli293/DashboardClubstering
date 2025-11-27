@@ -1,5 +1,5 @@
 # ============================================================
-# 🚀 STREAMLIT DASHBOARD – CLUSTERING SEMÁNTICO (Sin Administración/Oficina y sin "Otros")
+# 🚀 STREAMLIT DASHBOARD – CLUSTERING SEMÁNTICO (Sin Administración/Oficina y sin Docencia/Educación y sin "Otros")
 # ============================================================
 
 import streamlit as st
@@ -49,11 +49,9 @@ except Exception as e:
     st.error(f"Error cargando el CSV: {e}")
     st.stop()
 
+
 # ---------------------------
-# LIMPIEZA: quitar Administración / Oficina
-# ---------------------------
-# ---------------------------
-# LIMPIEZA: 
+# LIMPIEZA DE CATEGORÍAS
 # ---------------------------
 def clean_categories(df):
     df = df.copy()
@@ -62,13 +60,14 @@ def clean_categories(df):
     df[COL_CAT_SEM] = df[COL_CAT_SEM].astype(str).fillna("").str.strip()
     df[COL_TITULO] = df[COL_TITULO].astype(str).fillna("")
 
-    # patrones a eliminar completamente
+    # patrones a eliminar completamente del análisis
     patrones = r"(administración|oficina|admin|educación|docencia|docente|profesor|enseñanza)"
 
     mask_orig = df[COL_CAT_ORIGINAL].str.contains(patrones, case=False)
     mask_sem = df[COL_CAT_SEM].str.contains(patrones, case=False)
 
     return df[~(mask_orig | mask_sem)]
+
 
 df = clean_categories(df)
 
@@ -81,9 +80,6 @@ min_cluster_size = st.sidebar.slider("Excluir clusters con menos de X registros:
 top_src = st.sidebar.slider("Top categorías originales para Sankey:", 3, 30, 8)
 top_tgt = st.sidebar.slider("Top categorías semánticas para Sankey:", 3, 30, 8)
 
-# (❗ Eliminado el bloque de sugerencias completamente)
-# st.sidebar.markdown("### Sugerencias")  ← eliminado
-
 # ---------------------------
 # FILTRAR CLUSTERS PEQUEÑOS
 # ---------------------------
@@ -94,7 +90,7 @@ df = df[df[COL_CAT_SEM].isin(valid_clusters)]
 # ---------------------------
 # MÉTRICAS
 # ---------------------------
-st.subheader(" Métricas Generales (Administración/Oficina excluido)")
+st.subheader(" Métricas Generales (Administración/Oficina/Docencia excluidos)")
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Total registros", len(df))
 c2.metric("Categorías originales", df[COL_CAT_ORIGINAL].nunique())
@@ -102,6 +98,7 @@ c3.metric("Clusters refinados", df[COL_CLUSTER].nunique())
 c4.metric("Categorías semánticas finales", df[COL_CAT_SEM].nunique())
 
 st.markdown("---")
+
 
 # ---------------------------
 # GRÁFICO DE BARRAS
@@ -122,21 +119,18 @@ st.plotly_chart(fig_bar, use_container_width=True)
 
 st.markdown("---")
 
+
 # ============================================================
-#  FUNCIÓN SANKEY SIN “OTROS”
+#  SANKEY SIN “OTROS”
 # ============================================================
 def prepare_sankey_no_otros(df, source_col, target_col, top_src, top_tgt):
-    # Top categorías
     top_sources = df[source_col].value_counts().nlargest(top_src).index.tolist()
     top_targets = df[target_col].value_counts().nlargest(top_tgt).index.tolist()
 
-    # Filtrar SOLO pares que están en top ambas
     df_f = df[df[source_col].isin(top_sources) & df[target_col].isin(top_targets)]
 
-    # Agrupar
     agg = df_f.groupby([source_col, target_col]).size().reset_index(name="count")
 
-    # Crear nodos
     nodes_src = list(agg[source_col].unique())
     nodes_tgt = list(agg[target_col].unique())
     nodes = nodes_src + nodes_tgt
@@ -148,6 +142,7 @@ def prepare_sankey_no_otros(df, source_col, target_col, top_src, top_tgt):
     values = agg["count"].tolist()
 
     return nodes, sources, targets, values
+
 
 # ---------------------------
 # SANKEY FINAL
@@ -175,11 +170,38 @@ else:
             color="rgba(0,0,0,0.25)"
         )
     )])
-
     fig_sankey.update_layout(height=700)
     st.plotly_chart(fig_sankey, use_container_width=True)
 
 st.markdown("---")
+
+
+# ============================================================
+# 🌈 **NUEVO GRÁFICO: HEATMAP CLUSTER → CATEGORÍA SEMÁNTICA**
+# ============================================================
+
+st.subheader(" Heatmap: Clusters vs Categorías Semánticas")
+
+pivot = df.pivot_table(
+    index=COL_CLUSTER,
+    columns=COL_CAT_SEM,
+    values=COL_TITULO,
+    aggfunc="count",
+    fill_value=0
+)
+
+fig_heat = px.imshow(
+    pivot,
+    text_auto=True,
+    aspect="auto",
+    labels=dict(x="Categoría Semántica", y="Cluster"),
+)
+
+fig_heat.update_layout(height=700)
+st.plotly_chart(fig_heat, use_container_width=True)
+
+st.markdown("---")
+
 
 # ---------------------------
 # WORDCLOUD
@@ -198,6 +220,7 @@ st.pyplot(fig_wc)
 
 st.markdown("---")
 
+
 # ---------------------------
 # TABLE EXPORT
 # ---------------------------
@@ -210,5 +233,3 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
-
-
