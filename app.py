@@ -15,8 +15,8 @@ from io import BytesIO
 # ---------------------------
 # CONFIG
 # ---------------------------
-st.set_page_config(page_title="Dashboard – Clustering Semántico (Nivel 2)", layout="wide")
-st.title("🔍 Dashboard – Clustering Semántico (Nivel 2) — Versión limpia")
+st.set_page_config(page_title="Dashboard – Clustering Semántico ", layout="wide")
+st.title("Dashboard – Clustering Semántico ")
 
 # ---------------------------
 # CONSTANTES (columnas)
@@ -31,7 +31,7 @@ COL_CAT_SEM = "categoria_semantica_final"
 # CARGAR DATOS
 # ---------------------------
 @st.cache_data
-def load_data(path="/mnt/data/dataset_clustering_semantico_2nivel_nombres.csv"):
+def load_data(path="dataset_clustering_semantico_2nivel_nombres.csv"):
     df = pd.read_csv(path)
     return df
 
@@ -82,7 +82,7 @@ df = df[df[COL_CAT_SEM].isin(big_clusters)].copy()
 # ---------------------------
 # SECCIÓN: Métricas generales
 # ---------------------------
-st.subheader("📊 Métricas Generales (sin Administración / Oficina)")
+st.subheader(" Métricas Generales (sin Administración / Oficina)")
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Total de registros (filtrados)", f"{len(df):,}")
 col2.metric("Categorías originales", df[COL_CAT_ORIGINAL].nunique())
@@ -94,7 +94,7 @@ st.markdown("---")
 # ---------------------------
 # DISTRIBUCIÓN BARRAS (asegurando formato correcto)
 # ---------------------------
-st.subheader("📦 Distribución por Categoría Semántica Final")
+st.subheader(" Distribución por Categoría Semántica Final")
 
 try:
     counts_sem = df[COL_CAT_SEM].value_counts().reset_index(name="count")
@@ -150,7 +150,7 @@ def prepare_sankey(df, source_col, target_col, top_src=8, top_tgt=8):
 # ---------------------------
 # DIAGRAMA SANKEY (simplificado)
 # ---------------------------
-st.subheader("🔗 Sankey: Categoría Original → Categoría Semántica (simplificado)")
+st.subheader(" Sankey: Categoría Original → Categoría Semántica (simplificado)")
 
 try:
     nodes, sources, targets, values, node_colors, link_colors = prepare_sankey(
@@ -186,7 +186,7 @@ st.markdown("---")
 # ---------------------------
 # WORDCLOUD POR CATEGORÍA SEMÁNTICA
 # ---------------------------
-st.subheader("☁️ Nube de Palabras por Categoría Semántica")
+st.subheader(" Nube de Palabras por Categoría Semántica")
 
 try:
     options_sem = sorted(df[COL_CAT_SEM].unique())
@@ -214,7 +214,7 @@ st.markdown("---")
 # ---------------------------
 # ANÁLISIS DE SILHOUETTE
 # ---------------------------
-st.subheader("📈 Análisis de Silhouette")
+st.subheader(" Análisis de Silhouette")
 
 try:
     if COL_SILHOUETTE in df.columns and pd.api.types.is_numeric_dtype(df[COL_SILHOUETTE]):
@@ -230,7 +230,7 @@ st.markdown("---")
 # ---------------------------
 # TABLA DETALLADA Y EXPORTACIÓN
 # ---------------------------
-st.subheader("📄 Tabla detallada y exportación (filtrada)")
+st.subheader(" Tabla detallada y exportación (filtrada)")
 
 try:
     filtro = st.multiselect("Filtrar por categoría semántica (tabla):", sorted(df[COL_CAT_SEM].unique()), default=sorted(df[COL_CAT_SEM].unique()))
@@ -249,3 +249,4 @@ st.markdown("---")
 # ---------------------------
 st.sidebar.markdown("### Sugerencias")
 st.sidebar.markdown("- Ajusta 'Excluir clusters con menos de' para quitar clusters muy pequeños.\n- Reduce 'Top categorías' en Sankey para simplificar el diagrama.\n- Administración/Oficina ya se excluye automáticamente.")
+
