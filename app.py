@@ -213,9 +213,9 @@ ax.imshow(wc)
 ax.axis("off")
 st.pyplot(fig_wc)
 
-# ============================================================
-# 🟦 TABLA: Categoría Semántica → Cluster Dominante
-# ============================================================
+"""============================================================
+ 🟦 TABLA: Categoría Semántica → Cluster Dominante
+
 st.subheader("Mapa de Categorías Semánticas → Cluster Dominante")
 
 # Obtener la categoría dominante por cluster
@@ -238,7 +238,7 @@ st.download_button(
     "text/csv"
 )
 
-
+"""
 # Botón de descarga
 csv_clusters = tabla_cluster_dominante.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar tabla de clusters dominantes",
@@ -259,6 +259,7 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
 
 
 
