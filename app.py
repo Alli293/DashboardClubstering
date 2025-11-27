@@ -214,13 +214,25 @@ ax.axis("off")
 st.pyplot(fig_wc)
 
 st.markdown("---")
+st.subheader(" Tabla de categorías semánticas y su cluster dominante")
 
-st.subheader("Categoría Dominante por Cluster")
+# Agrupar: escoger cluster más frecuente por categoría semántica
+tabla_cluster_dominante = (
+    df.groupby(COL_CAT_SEM)[COL_CLUSTER]
+      .agg(lambda x: x.value_counts().idxmax())
+      .reset_index()
+)
 
-tabla_clusters = categoria_dominante[["cluster_base", "categoria_dominante"]]
-tabla_clusters.columns = ["Cluster", "Categoría Dominante"]
+tabla_cluster_dominante.columns = ["categoria_semantica", "cluster_dominante"]
 
-st.dataframe(tabla_clusters, use_container_width=True)
+st.dataframe(tabla_cluster_dominante, use_container_width=True)
+
+# Botón de descarga
+csv_clusters = tabla_cluster_dominante.to_csv(index=False).encode("utf-8-sig")
+st.download_button("⬇️ Descargar tabla de clusters dominantes",
+                   csv_clusters,
+                   "cluster_dominante_por_categoria.csv",
+                   "text/csv")
 
 
 # ---------------------------
@@ -235,6 +247,7 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
 
 
 
