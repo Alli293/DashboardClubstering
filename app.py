@@ -74,55 +74,67 @@ st.plotly_chart(fig, use_container_width=True)
 # SANKEY MEJORADO: Se limita a las top N categorías originales
 # =================================================================
 
-st.subheader("🔗 Flujo (Reducido): Categoría Original → Categoría Semántica Final")
+# =================================================================
+# 6. SANKEY (Streamlit Cloud compatible)
+# =================================================================
 
-TOP_N = st.slider(
-    "Cantidad de categorías originales a mostrar (recomendado 10–20)",
-    min_value=5,
-    max_value=40,
-    value=15
-)
+import plotly.graph_objects as go
 
-def sankey_simplificado(df, col_source, col_target, top_n=15):
-    # Eliminar filas sin datos
-    df_clean = df.dropna(subset=[col_source, col_target])
+st.subheader(" Flujo: Categoría Original → Categoría Semántica Final")
 
-    # Obtener top N categorías originales
-    top_sources = (
-        df_clean[col_source]
-        .value_counts()
-        .nlargest(top_n)
-        .index
+def sankey_simplificado(df, col_source, col_target, top_n=12):
+    # Agrupar conteos
+    links = (
+        df.groupby([col_source, col_target])
+        .size()
+        .reset_index(name="count")
+        .sort_values("count", ascending=False)
     )
 
-    # Filtrar
-    df_top = df_clean[df_clean[col_source].isin(top_sources)]
+    # Tomar solo top_n flows para que NO explote visualmente
+    links = links.head(top_n)
 
-    # Agrupar
-    links = df_top.groupby([col_source, col_target]).size().reset_index(name="count")
+    # Crear lista limpia de labels
+    labels = list(pd.unique(links[[col_source, col_target]].values.ravel()))
 
-    # Crear nodos únicos
-    all_labels = list(links[col_source].unique()) + list(links[col_target].unique())
-    label_to_id = {label: i for i, label in enumerate(all_labels)}
+    # Mapear cada label a un índice
+    label_to_id = {label: i for i, label in enumerate(labels)}
 
-    # Dibujar sankey
-    fig = px.sankey(
-        links,
-        node=dict(label=all_labels, pad=20, thickness=15),
-        source=links[col_source].map(label_to_id),
-        target=links[col_target].map(label_to_id),
-        value="count",
+    # Crear nodos y enlaces
+    source = links[col_source].map(label_to_id)
+    target = links[col_target].map(label_to_id)
+    value = links["count"]
+
+    fig = go.Figure(
+        data=[
+            go.Sankey(
+                node=dict(
+                    pad=20,
+                    thickness=20,
+                    line=dict(color="black", width=0.5),
+                    label=labels,
+                ),
+                link=dict(
+                    source=source,
+                    target=target,
+                    value=value,
+                ),
+            )
+        ]
     )
 
     fig.update_layout(
-        title=f"Sankey – Top {top_n} categorías → categorías semánticas",
-        height=600
+        title_text="🔗 Flujo simplificado (Top {} conexiones)".format(top_n),
+        font_size=12,
+        height=600,
     )
+
     return fig
 
-# Mostrar sankey
+
+# Mostrar Sankey simplificado
 st.plotly_chart(
-    sankey_simplificado(df, COL_CAT_ORIGINAL, COL_CAT_SEM, TOP_N),
+    sankey_simplificado(df, COL_CAT_ORIGINAL, COL_CAT_SEM, top_n=20),
     use_container_width=True
 )
 
@@ -181,4 +193,5 @@ st.download_button(
     file_name="cluster_filtrado.csv",
     mime="text/csv"
 )
+
 
