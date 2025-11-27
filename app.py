@@ -176,36 +176,6 @@ else:
 st.markdown("---")
 
 
-# ============================================================
-# NUEVA TABLA: Mapeo de Cluster → Categoria Semántica Final
-# ============================================================
-
-st.subheader(" 🧭 Resumen: Cluster → Categoría Semántica Final")
-
-# Agrupar: cada cluster con su categoría semántica más frecuente
-tabla_cluster_sem = (
-    df.groupby(COL_CLUSTER)[COL_CAT_SEM]
-    .agg(lambda x: x.value_counts().idxmax())
-    .reset_index()
-)
-
-tabla_cluster_sem.columns = ["cluster_refinado", "categoria_semantica_principal"]
-
-# Mostrar tabla
-st.dataframe(tabla_cluster_sem, use_container_width=True)
-
-# Botón para descargar
-csv_map = tabla_cluster_sem.to_csv(index=False).encode("utf-8-sig")
-st.download_button(
-    "⬇️ Descargar mapeo Cluster → Categoría",
-    csv_map,
-    "mapeo_cluster_categoria.csv",
-    "text/csv"
-)
-
-st.markdown("---")
-
-
 # ---------------------------
 # WORDCLOUD
 # ---------------------------
@@ -223,6 +193,24 @@ st.pyplot(fig_wc)
 
 st.markdown("---")
 
+# ---------------------------
+# TABLA: Cluster ↔ Categoría Semántica
+# ---------------------------
+st.subheader("📋 Mapa de Clusters → Categorías Semánticas")
+
+# Usar solo categorías disponibles en el dropdown de la nube de palabras
+categorias_validas = sorted(df[COL_CAT_SEM].unique())
+
+# Filtrar el df solo con esas categorías (ya excluye admin y docencia por la limpieza previa)
+df_mapa = (
+    df[df[COL_CAT_SEM].isin(categorias_validas)]
+    [[COL_CLUSTER, COL_CAT_SEM]]
+    .drop_duplicates()
+    .sort_values(COL_CLUSTER)
+)
+
+st.dataframe(df_mapa, use_container_width=True, height=300)
+
 
 # ---------------------------
 # TABLE EXPORT
@@ -236,5 +224,6 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
 
 
