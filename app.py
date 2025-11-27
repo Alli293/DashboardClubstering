@@ -194,22 +194,28 @@ st.pyplot(fig_wc)
 st.markdown("---")
 
 # ---------------------------
-# TABLA: Cluster ↔ Categoría Semántica
+# TABLA: CATEGORÍA → CLUSTERS DONDE APARECE
 # ---------------------------
-st.subheader("📋 Mapa de Clusters → Categorías Semánticas")
 
-# Usar solo categorías disponibles en el dropdown de la nube de palabras
-categorias_validas = sorted(df[COL_CAT_SEM].unique())
+st.subheader(" Categoría Semántica → Clusters donde aparece")
 
-# Filtrar el df solo con esas categorías (ya excluye admin y docencia por la limpieza previa)
-df_mapa = (
-    df[df[COL_CAT_SEM].isin(categorias_validas)]
-    [[COL_CLUSTER, COL_CAT_SEM]]
-    .drop_duplicates()
-    .sort_values(COL_CLUSTER)
+# Construir tabla
+tabla_cat_cluster = (
+    df.groupby(COL_CAT_SEM)[COL_CLUSTER]
+    .unique()
+    .reset_index()
+    .rename(columns={COL_CAT_SEM: "categoria_semantica", COL_CLUSTER: "clusters"})
 )
 
-st.dataframe(df_mapa, use_container_width=True, height=300)
+# Filtrar usando el mismo dropdown del WordCloud
+tabla_filtrada = tabla_cat_cluster[
+    tabla_cat_cluster["categoria_semantica"].isin(options_sem)
+]
+
+# Convertir listas a string para visualización
+tabla_filtrada["clusters"] = tabla_filtrada["clusters"].apply(lambda x: ", ".join(map(str, x)))
+
+st.dataframe(tabla_filtrada, use_container_width=True, height=300)
 
 
 # ---------------------------
@@ -224,6 +230,7 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
 
 
 
