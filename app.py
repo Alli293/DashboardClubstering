@@ -196,45 +196,34 @@ st.markdown("---")
 # ============================================================
 # TABLA: CATEGORÍA SEMÁNTICA DOMINANTE POR CLUSTER
 # ============================================================
-st.subheader("📌 Categoría semántica dominante por cluster")
+# ============================================================
+# TABLA: CATEGORÍA SEMÁNTICA DOMINANTE POR CLUSTER
+# ============================================================
 
-def categoria_dominante_por_cluster(df):
-    tabla = (
-        df.groupby([COL_CLUSTER, COL_CAT_SEM])
-          .size()
-          .reset_index(name="count")
-          .sort_values(["cluster_refinado_sub", "count"], ascending=[True, False])
-    )
+st.subheader(" Categoría semántica dominante por cluster")
 
-    resultado = []
+# 1. Contar categorías por cluster
+dominantes = (
+    df.groupby([COL_CLUSTER, COL_CAT_SEM])
+      .size()
+      .reset_index(name='count')
+)
 
-    for cluster, subdf in tabla.groupby(COL_CLUSTER):
-        # obtener max count
-        max_count = subdf["count"].max()
-        dominantes = subdf[subdf["count"] == max_count]
+# 2. Tomar la categoría más frecuente de cada cluster
+dominante_por_cluster = (
+    dominantes.loc[
+        dominantes.groupby(COL_CLUSTER)['count'].idxmax()
+    ][[COL_CLUSTER, COL_CAT_SEM, 'count']]
+).sort_values(COL_CLUSTER)
 
-        # si solo hay una dominante → normal
-        if len(dominantes) == 1:
-            resultado.append({
-                "cluster": cluster,
-                "categoria_semantica_dominante": dominantes.iloc[0][COL_CAT_SEM]
-            })
-        else:
-            # múltiples dominantes → desdoblar como cluster_x_1, cluster_x_2...
-            for i, (_, row) in enumerate(dominantes.iterrows(), start=1):
-                resultado.append({
-                    "cluster": f"{cluster}_{i}",
-                    "categoria_semantica_dominante": row[COL_CAT_SEM]
-                })
+# 3. Renombrar columnas
+dominante_por_cluster.columns = ["Cluster", "Categoria_semantica_dominante", "Frecuencia"]
 
-    return pd.DataFrame(resultado)
-
-tabla_dom = categoria_dominante_por_cluster(df)
-
+# 4. Mostrar tabla
 st.dataframe(
-    tabla_dom,
+    dominante_por_cluster,
     use_container_width=True,
-    height=300
+    height=350
 )
 
 # ---------------------------
@@ -249,6 +238,7 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
 
 
 
