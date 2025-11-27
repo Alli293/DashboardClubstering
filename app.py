@@ -52,17 +52,26 @@ except Exception as e:
 # ---------------------------
 # LIMPIEZA: quitar Administración / Oficina
 # ---------------------------
-def clean_admin(df):
+# ---------------------------
+# LIMPIEZA: 
+# ---------------------------
+def clean_categories(df):
     df = df.copy()
+
     df[COL_CAT_ORIGINAL] = df[COL_CAT_ORIGINAL].astype(str).fillna("").str.strip()
     df[COL_CAT_SEM] = df[COL_CAT_SEM].astype(str).fillna("").str.strip()
     df[COL_TITULO] = df[COL_TITULO].astype(str).fillna("")
 
-    mask_orig = df[COL_CAT_ORIGINAL].str.contains(r"administración|oficina|admin", case=False)
-    mask_sem = df[COL_CAT_SEM].str.contains(r"administración|oficina|admin", case=False)
+    # patrones a eliminar completamente
+    patrones = r"(administración|oficina|admin|educación|docencia|docente|profesor|enseñanza)"
+
+    mask_orig = df[COL_CAT_ORIGINAL].str.contains(patrones, case=False)
+    mask_sem = df[COL_CAT_SEM].str.contains(patrones, case=False)
+
     return df[~(mask_orig | mask_sem)]
 
-df = clean_admin(df)
+df = clean_categories(df)
+
 
 # ---------------------------
 # SIDEBAR
@@ -201,4 +210,5 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
 
