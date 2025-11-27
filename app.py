@@ -193,30 +193,49 @@ st.pyplot(fig_wc)
 
 st.markdown("---")
 
-# ---------------------------
-# TABLA: CATEGORÍA → CLUSTERS DONDE APARECE
-# ---------------------------
+# ============================================================
+# TABLA: CATEGORÍA SEMÁNTICA DOMINANTE POR CLUSTER
+# ============================================================
+st.subheader("📌 Categoría semántica dominante por cluster")
 
-st.subheader(" Categoría Semántica → Clusters donde aparece")
+def categoria_dominante_por_cluster(df):
+    tabla = (
+        df.groupby([COL_CLUSTER, COL_CAT_SEM])
+          .size()
+          .reset_index(name="count")
+          .sort_values(["cluster_refinado_sub", "count"], ascending=[True, False])
+    )
 
-# Construir tabla
-tabla_cat_cluster = (
-    df.groupby(COL_CAT_SEM)[COL_CLUSTER]
-    .unique()
-    .reset_index()
-    .rename(columns={COL_CAT_SEM: "categoria_semantica", COL_CLUSTER: "clusters"})
+    resultado = []
+
+    for cluster, subdf in tabla.groupby(COL_CLUSTER):
+        # obtener max count
+        max_count = subdf["count"].max()
+        dominantes = subdf[subdf["count"] == max_count]
+
+        # si solo hay una dominante → normal
+        if len(dominantes) == 1:
+            resultado.append({
+                "cluster": cluster,
+                "categoria_semantica_dominante": dominantes.iloc[0][COL_CAT_SEM]
+            })
+        else:
+            # múltiples dominantes → desdoblar como cluster_x_1, cluster_x_2...
+            for i, (_, row) in enumerate(dominantes.iterrows(), start=1):
+                resultado.append({
+                    "cluster": f"{cluster}_{i}",
+                    "categoria_semantica_dominante": row[COL_CAT_SEM]
+                })
+
+    return pd.DataFrame(resultado)
+
+tabla_dom = categoria_dominante_por_cluster(df)
+
+st.dataframe(
+    tabla_dom,
+    use_container_width=True,
+    height=300
 )
-
-# Filtrar usando el mismo dropdown del WordCloud
-tabla_filtrada = tabla_cat_cluster[
-    tabla_cat_cluster["categoria_semantica"].isin(options_sem)
-]
-
-# Convertir listas a string para visualización
-tabla_filtrada["clusters"] = tabla_filtrada["clusters"].apply(lambda x: ", ".join(map(str, x)))
-
-st.dataframe(tabla_filtrada, use_container_width=True, height=300)
-
 
 # ---------------------------
 # TABLE EXPORT
@@ -230,6 +249,7 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
 
 
 
