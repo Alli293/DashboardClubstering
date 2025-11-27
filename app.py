@@ -216,47 +216,35 @@ st.pyplot(fig_wc)
 st.markdown("---")
 
 # ============================================================
-# TABLA: CATEGORÍA SEMÁNTICA DOMINANTE POR CLUSTER
+# 🟦 TABLA: Cluster → Categoría Semántica Dominante
 # ============================================================
+st.subheader("Cluster → Categoría Semántica (Dominante)")
 
-# ============================================================
-# TABLA: CLUSTER → CATEGORÍA SEMÁNTICA DOMINANTE
-# ============================================================
-
-st.subheader(" Mapeo: Cluster → Categoría Semántica (Dominante)")
-
-# Categorías visibles (las mismas del dropdown del WordCloud)
+# Obtener categorías válidas (las mismas del dropdown)
 categorias_validas = set(options_sem)
 
-# Filtrar solo esas categorías
-df_valid = df[df[COL_CAT_SEM].isin(categorias_validas)]
-
-# Calcular la categoría dominante por cluster
-cluster_dom = (
-    df_valid
+# Calcular categoría dominante por cluster
+tabla_cluster = (
+    df[df[COL_CAT_SEM].isin(categorias_validas)]
     .groupby([COL_CLUSTER, COL_CAT_SEM])
     .size()
     .reset_index(name="count")
 )
 
-# Seleccionar la categoría más frecuente por cluster
-cluster_dom = (
-    cluster_dom
-    .sort_values(["count"], ascending=False)
-    .drop_duplicates(subset=[COL_CLUSTER])  # deja solo el top
+# Para cada cluster, elegir la categoría con MAYOR frecuencia
+tabla_cluster = (
+    tabla_cluster
+    .sort_values(["count"], ascending=[False])
+    .drop_duplicates(subset=[COL_CLUSTER], keep="first")
     .sort_values(COL_CLUSTER)
 )
 
-# Renombrar columnas
-cluster_dom = cluster_dom[[COL_CLUSTER, COL_CAT_SEM]].rename(
-    columns={
-        COL_CLUSTER: "cluster_id",
-        COL_CAT_SEM: "categoria_semantica_dominante"
-    }
+st.dataframe(
+    tabla_cluster[[COL_CLUSTER, COL_CAT_SEM]].rename(
+        columns={COL_CLUSTER: "Cluster", COL_CAT_SEM: "Categoría Semántica Dominante"}
+    ),
+    use_container_width=True
 )
-
-st.dataframe(cluster_dom, use_container_width=True)
-
 
 # ---------------------------
 # TABLE EXPORT
@@ -270,6 +258,7 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
 
 
 
