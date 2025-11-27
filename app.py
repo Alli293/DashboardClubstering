@@ -18,7 +18,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🔍 Dashboard – Clustering Semántico (Nivel 2)")
+st.title(" Dashboard – Clustering Semántico (Nivel 2)")
 st.write("Archivo procesado con columnas refinadas y etiquetas semánticas finales.")
 
 # =================================================================
@@ -42,7 +42,7 @@ COL_CAT_SEM = "categoria_semantica_final"
 # 3. MÉTRICAS GENERALES
 # =================================================================
 
-st.subheader("📊 Métricas Generales")
+st.subheader("Métricas Generales")
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Total de registros", len(df))
 col2.metric("Categorías originales", df[COL_CAT_ORIGINAL].nunique())
@@ -53,13 +53,17 @@ col4.metric("Categorías semánticas finales", df[COL_CAT_SEM].nunique())
 # 4. DISTRIBUCIÓN POR CATEGORÍA SEMÁNTICA
 # =================================================================
 
-st.subheader("📦 Distribución por Categoría Semántica Final")
+st.subheader(" Distribución por Categoría Semántica Final")
+
+# Fix para Streamlit Cloud
+dist = df[COL_CAT_SEM].value_counts().reset_index()
+dist.columns = ["categoria_semantica", "frecuencia"]
 
 fig = px.bar(
-    df[COL_CAT_SEM].value_counts().reset_index(),
-    x="index",
-    y=COL_CAT_SEM,
-    labels={"index": "Categoría Semántica", COL_CAT_SEM: "Frecuencia"},
+    dist,
+    x="categoria_semantica",
+    y="frecuencia",
+    labels={"categoria_semantica": "Categoría Semántica", "frecuencia": "Frecuencia"},
     title="Distribución de categorías semánticas"
 )
 st.plotly_chart(fig, use_container_width=True)
@@ -68,7 +72,7 @@ st.plotly_chart(fig, use_container_width=True)
 # 5. SANKEY: Categoría Original → Categoría Semántica Final
 # =================================================================
 
-st.subheader("🔗 Flujo: Categoría Original → Categoría Semántica Final")
+st.subheader(" Flujo: Categoría Original → Categoría Semántica Final")
 
 def sankey(df, col_source, col_target):
     links = df.groupby([col_source, col_target]).size().reset_index(name="count")
@@ -92,7 +96,7 @@ st.plotly_chart(sankey(df, COL_CAT_ORIGINAL, COL_CAT_SEM), use_container_width=T
 # 6. WORDCLOUD POR CATEGORÍA SEMÁNTICA
 # =================================================================
 
-st.subheader("☁️ Nube de Palabras por Categoría Semántica")
+st.subheader(" Nube de Palabras por Categoría Semántica")
 
 categoria_wc = st.selectbox("Selecciona categoría semántica:", df[COL_CAT_SEM].unique())
 subset_wc = df[df[COL_CAT_SEM] == categoria_wc]
@@ -110,7 +114,7 @@ st.pyplot(fig_wc)
 # 7. ANÁLISIS DE SILHOUETTE
 # =================================================================
 
-st.subheader("📈 Análisis de Silhouette")
+st.subheader(" Análisis de Silhouette")
 
 fig_sil = px.histogram(
     df,
@@ -124,7 +128,7 @@ st.plotly_chart(fig_sil, use_container_width=True)
 # 8. TABLA DETALLADA Y EXPORTACIÓN
 # =================================================================
 
-st.subheader("📄 Tabla detallada y exportación")
+st.subheader(" Tabla detallada y exportación")
 
 filtro = st.multiselect(
     "Filtrar por categoría semántica",
@@ -139,9 +143,10 @@ st.dataframe(df_filtrado, use_container_width=True, height=400)
 csv_data = df_filtrado.to_csv(index=False).encode("utf-8")
 
 st.download_button(
-    label="⬇️ Descargar CSV filtrado",
+    label=" Descargar CSV filtrado",
     data=csv_data,
     file_name="cluster_filtrado.csv",
     mime="text/csv"
 )
+
 
