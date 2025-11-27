@@ -213,55 +213,10 @@ ax.imshow(wc)
 ax.axis("off")
 st.pyplot(fig_wc)
 
-"""============================================================
- 🟦 TABLA: Categoría Semántica → Cluster Dominante
-
-st.subheader("Mapa de Categorías Semánticas → Cluster Dominante")
-
-# Obtener la categoría dominante por cluster
-tabla_dom = (
-    df.groupby(COL_CAT_SEM)[COL_CLUSTER]
-    .agg(lambda x: x.value_counts().index[0])   # cluster dominante
-    .reset_index()
-)
-
-tabla_dom.columns = ["categoria_semantica", "cluster_dominante"]
-
-st.dataframe(tabla_dom, use_container_width=True)
-
-# Exportar
-csv_dom = tabla_dom.to_csv(index=False).encode("utf-8-sig")
-st.download_button(
-    "⬇️ Descargar tabla de categorías → cluster dominante",
-    csv_dom,
-    "categorias_cluster_dominante.csv",
-    "text/csv"
-)
 
 
-# Botón de descarga
-csv_clusters = tabla_cluster_dominante.to_csv(index=False).encode("utf-8-sig")
-st.download_button("⬇️ Descargar tabla de clusters dominantes",
-                   csv_clusters,
-                   "cluster_dominante_por_categoria.csv",
-                   "text/csv")
 
 
-# ---------------------------
-# TABLE EXPORT
-# ---------------------------
-st.subheader(" Tabla detallada")
-
-filtro = st.multiselect("Filtrar categorías semánticas:", options_sem, default=options_sem)
-df_filtrado = df[df[COL_CAT_SEM].isin(filtro)]
-
-st.dataframe(df_filtrado, use_container_width=True, height=420)
-
-csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
-st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
-
-
-"""
 
 
 
