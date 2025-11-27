@@ -176,43 +176,33 @@ else:
 st.markdown("---")
 
 
-# ---------------------------
-# GRÁFICO GENERAL: Cluster vs Categoría Semántica
-# ---------------------------
-st.subheader(" Relación entre Cluster Asignado y Categoría Semántica Final")
+# ============================================================
+# NUEVA TABLA: Mapeo de Cluster → Categoria Semántica Final
+# ============================================================
 
-# Preparamos la tabla dinámica (pivot)
-pivot = (
-    df.groupby([COL_CLUSTER, COL_CAT_SEM])
-      .size()
-      .reset_index(name="count")
+st.subheader(" 🧭 Resumen: Cluster → Categoría Semántica Final")
+
+# Agrupar: cada cluster con su categoría semántica más frecuente
+tabla_cluster_sem = (
+    df.groupby(COL_CLUSTER)[COL_CAT_SEM]
+    .agg(lambda x: x.value_counts().idxmax())
+    .reset_index()
 )
 
-# Ordenar clusters por tamaño total
-cluster_order = (
-    pivot.groupby(COL_CLUSTER)["count"].sum()
-         .sort_values(ascending=False)
-         .index.tolist()
+tabla_cluster_sem.columns = ["cluster_refinado", "categoria_semantica_principal"]
+
+# Mostrar tabla
+st.dataframe(tabla_cluster_sem, use_container_width=True)
+
+# Botón para descargar
+csv_map = tabla_cluster_sem.to_csv(index=False).encode("utf-8-sig")
+st.download_button(
+    "⬇️ Descargar mapeo Cluster → Categoría",
+    csv_map,
+    "mapeo_cluster_categoria.csv",
+    "text/csv"
 )
 
-fig_cluster_sem = px.bar(
-    pivot,
-    x=COL_CLUSTER,
-    y="count",
-    color=COL_CAT_SEM,
-    category_orders={COL_CLUSTER: cluster_order},
-    title="Distribución: Cluster → Categoría Semántica",
-)
-
-fig_cluster_sem.update_layout(
-    xaxis_title="Cluster refinado",
-    yaxis_title="Cantidad",
-    height=600,
-    legend_title="Categoría Semántica",
-    barmode="stack"
-)
-
-st.plotly_chart(fig_cluster_sem, use_container_width=True)
 st.markdown("---")
 
 
@@ -246,4 +236,5 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
 
