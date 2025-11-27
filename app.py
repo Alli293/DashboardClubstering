@@ -215,36 +215,13 @@ st.pyplot(fig_wc)
 
 st.markdown("---")
 
-# ============================================================
-# 🟦 TABLA: Cluster → Categoría Semántica Dominante
-# ============================================================
-st.subheader("Cluster → Categoría Semántica (Dominante)")
+st.subheader("Categoría Dominante por Cluster")
 
-# Obtener categorías válidas (las mismas del dropdown)
-categorias_validas = set(options_sem)
+tabla_clusters = categoria_dominante[["cluster_base", "categoria_dominante"]]
+tabla_clusters.columns = ["Cluster", "Categoría Dominante"]
 
-# Calcular categoría dominante por cluster
-tabla_cluster = (
-    df[df[COL_CAT_SEM].isin(categorias_validas)]
-    .groupby([COL_CLUSTER, COL_CAT_SEM])
-    .size()
-    .reset_index(name="count")
-)
+st.dataframe(tabla_clusters, use_container_width=True)
 
-# Para cada cluster, elegir la categoría con MAYOR frecuencia
-tabla_cluster = (
-    tabla_cluster
-    .sort_values(["count"], ascending=[False])
-    .drop_duplicates(subset=[COL_CLUSTER], keep="first")
-    .sort_values(COL_CLUSTER)
-)
-
-st.dataframe(
-    tabla_cluster[[COL_CLUSTER, COL_CAT_SEM]].rename(
-        columns={COL_CLUSTER: "Cluster", COL_CAT_SEM: "Categoría Semántica Dominante"}
-    ),
-    use_container_width=True
-)
 
 # ---------------------------
 # TABLE EXPORT
@@ -258,6 +235,7 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
 
 
 
