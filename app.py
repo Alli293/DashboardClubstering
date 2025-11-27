@@ -219,12 +219,44 @@ st.markdown("---")
 # TABLA: CATEGORÍA SEMÁNTICA DOMINANTE POR CLUSTER
 # ============================================================
 
-st.subheader("Categoría Dominante por Cluster")
+# ============================================================
+# TABLA: CLUSTER → CATEGORÍA SEMÁNTICA DOMINANTE
+# ============================================================
 
-tabla_clusters = categoria_dominante[["cluster_base", "categoria_dominante"]]
-tabla_clusters.columns = ["Cluster", "Categoría Dominante"]
+st.subheader(" Mapeo: Cluster → Categoría Semántica (Dominante)")
 
-st.dataframe(tabla_clusters, use_container_width=True)
+# Categorías visibles (las mismas del dropdown del WordCloud)
+categorias_validas = set(options_sem)
+
+# Filtrar solo esas categorías
+df_valid = df[df[COL_CAT_SEM].isin(categorias_validas)]
+
+# Calcular la categoría dominante por cluster
+cluster_dom = (
+    df_valid
+    .groupby([COL_CLUSTER, COL_CAT_SEM])
+    .size()
+    .reset_index(name="count")
+)
+
+# Seleccionar la categoría más frecuente por cluster
+cluster_dom = (
+    cluster_dom
+    .sort_values(["count"], ascending=False)
+    .drop_duplicates(subset=[COL_CLUSTER])  # deja solo el top
+    .sort_values(COL_CLUSTER)
+)
+
+# Renombrar columnas
+cluster_dom = cluster_dom[[COL_CLUSTER, COL_CAT_SEM]].rename(
+    columns={
+        COL_CLUSTER: "cluster_id",
+        COL_CAT_SEM: "categoria_semantica_dominante"
+    }
+)
+
+st.dataframe(cluster_dom, use_container_width=True)
+
 
 # ---------------------------
 # TABLE EXPORT
@@ -238,6 +270,7 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
 
 
 
