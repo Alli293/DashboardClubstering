@@ -176,30 +176,43 @@ else:
 st.markdown("---")
 
 
-# ============================================================
-# 🌈 **NUEVO GRÁFICO: HEATMAP CLUSTER → CATEGORÍA SEMÁNTICA**
-# ============================================================
+# ---------------------------
+# GRÁFICO GENERAL: Cluster vs Categoría Semántica
+# ---------------------------
+st.subheader(" Relación entre Cluster Asignado y Categoría Semántica Final")
 
-st.subheader(" Heatmap: Clusters vs Categorías Semánticas")
-
-pivot = df.pivot_table(
-    index=COL_CLUSTER,
-    columns=COL_CAT_SEM,
-    values=COL_TITULO,
-    aggfunc="count",
-    fill_value=0
+# Preparamos la tabla dinámica (pivot)
+pivot = (
+    df.groupby([COL_CLUSTER, COL_CAT_SEM])
+      .size()
+      .reset_index(name="count")
 )
 
-fig_heat = px.imshow(
+# Ordenar clusters por tamaño total
+cluster_order = (
+    pivot.groupby(COL_CLUSTER)["count"].sum()
+         .sort_values(ascending=False)
+         .index.tolist()
+)
+
+fig_cluster_sem = px.bar(
     pivot,
-    text_auto=True,
-    aspect="auto",
-    labels=dict(x="Categoría Semántica", y="Cluster"),
+    x=COL_CLUSTER,
+    y="count",
+    color=COL_CAT_SEM,
+    category_orders={COL_CLUSTER: cluster_order},
+    title="Distribución: Cluster → Categoría Semántica",
 )
 
-fig_heat.update_layout(height=700)
-st.plotly_chart(fig_heat, use_container_width=True)
+fig_cluster_sem.update_layout(
+    xaxis_title="Cluster refinado",
+    yaxis_title="Cantidad",
+    height=600,
+    legend_title="Categoría Semántica",
+    barmode="stack"
+)
 
+st.plotly_chart(fig_cluster_sem, use_container_width=True)
 st.markdown("---")
 
 
@@ -233,3 +246,4 @@ st.dataframe(df_filtrado, use_container_width=True, height=420)
 
 csv = df_filtrado.to_csv(index=False).encode("utf-8-sig")
 st.download_button("⬇️ Descargar CSV", csv, "cluster_filtrado.csv", "text/csv")
+
