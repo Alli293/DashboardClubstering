@@ -70,40 +70,62 @@ fig = px.bar(
 )
 st.plotly_chart(fig, use_container_width=True)
 
-# -----------------------------------------------------------------
-# 5. SANKEY – Categoría Original → Categoría Semántica Final
-# -----------------------------------------------------------------
+# =================================================================
+# SANKEY MEJORADO: Se limita a las top N categorías originales
+# =================================================================
 
-st.subheader(" Flujo: Categoría Original → Categoría Semántica Final")
+st.subheader("🔗 Flujo (Reducido): Categoría Original → Categoría Semántica Final")
 
-def sankey(df, col_source, col_target):
+TOP_N = st.slider(
+    "Cantidad de categorías originales a mostrar (recomendado 10–20)",
+    min_value=5,
+    max_value=40,
+    value=15
+)
 
-    links = df.groupby([col_source, col_target]).size().reset_index(name="count")
+def sankey_simplificado(df, col_source, col_target, top_n=15):
+    # Eliminar filas sin datos
+    df_clean = df.dropna(subset=[col_source, col_target])
 
+    # Obtener top N categorías originales
+    top_sources = (
+        df_clean[col_source]
+        .value_counts()
+        .nlargest(top_n)
+        .index
+    )
+
+    # Filtrar
+    df_top = df_clean[df_clean[col_source].isin(top_sources)]
+
+    # Agrupar
+    links = df_top.groupby([col_source, col_target]).size().reset_index(name="count")
+
+    # Crear nodos únicos
     all_labels = list(links[col_source].unique()) + list(links[col_target].unique())
     label_to_id = {label: i for i, label in enumerate(all_labels)}
 
-    source_ids = links[col_source].map(label_to_id)
-    target_ids = links[col_target].map(label_to_id)
+    # Dibujar sankey
+    fig = px.sankey(
+        links,
+        node=dict(label=all_labels, pad=20, thickness=15),
+        source=links[col_source].map(label_to_id),
+        target=links[col_target].map(label_to_id),
+        value="count",
+    )
 
-    fig = go.Figure(data=[go.Sankey(
-        node=dict(
-            label=all_labels,
-            pad=20,
-            thickness=20
-        ),
-        link=dict(
-            source=source_ids,
-            target=target_ids,
-            value=links["count"]
-        )
-    )])
-
-    fig.update_layout(title_text="Mapa de flujo categorías originales → semánticas")
-
+    fig.update_layout(
+        title=f"Sankey – Top {top_n} categorías → categorías semánticas",
+        height=600
+    )
     return fig
 
-st.plotly_chart(sankey(df, COL_CAT_ORIGINAL, COL_CAT_SEM), use_container_width=True)
+# Mostrar sankey
+st.plotly_chart(
+    sankey_simplificado(df, COL_CAT_ORIGINAL, COL_CAT_SEM, TOP_N),
+    use_container_width=True
+)
+
 
 # -----------------------------------------------------------------
 # 6. WORDCLOUD
@@ -159,3 +181,4 @@ st.download_button(
     file_name="cluster_filtrado.csv",
     mime="text/csv"
 )
+
