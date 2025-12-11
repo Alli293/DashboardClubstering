@@ -17,9 +17,9 @@ from collections import Counter
 st.set_page_config(
     page_title="Dashboard – Clustering Semántico Completo", 
     layout="wide",
-    page_icon="📊"
+    
 )
-st.title("📊 Dashboard – Clustering Semántico Completo")
+st.title(" Dashboard – Clustering Semántico Completo")
 
 # ---------------------------
 # CONSTANTES
@@ -90,23 +90,23 @@ df = df.merge(categoria_dominante[["cluster_base", "categoria_dominante"]], on="
 # ---------------------------
 # SIDEBAR CON NAVEGACIÓN
 # ---------------------------
-st.sidebar.title("🌐 Navegación")
+st.sidebar.title(" Navegación")
 section = st.sidebar.radio(
     "Selecciona una sección:",
     [
-        "📈 Descripción General",
-        "🔀 Sankey - Reorganización Semántica",
-        "📊 Métricas de Calidad",
-        "☁️ Nubes de Palabras",
-        "⚖️ Análisis Comparativo",
-        "🔍 Detalle por Cluster",
-        "👨‍💼 Explorador de Empleos",
-        "💾 Exportar Resultados"
+        " Descripción General",
+        " Sankey - Reorganización Semántica",
+        " Métricas de Calidad",
+        " Nubes de Palabras",
+        " Análisis Comparativo",
+        " Detalle por Cluster",
+        " Explorador de Empleos",
+        " Exportar Resultados"
     ]
 )
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("⚙️ Filtros Generales")
+st.sidebar.subheader(" Filtros Generales")
 
 min_cluster_size = st.sidebar.slider("Excluir clusters con menos de X registros:", 0, 200, 3)
 top_src = st.sidebar.slider("Top categorías originales para Sankey:", 3, 30, 8)
@@ -122,8 +122,8 @@ df_filtered = df[df[COL_CAT_SEM].isin(valid_clusters)]
 # ============================================================
 # SECCIÓN 1: DESCRIPCIÓN GENERAL
 # ============================================================
-if section == "📈 Descripción General":
-    st.subheader("🎯 Métricas Generales")
+if section == " Descripción General":
+    st.subheader(" Métricas Generales")
     
     c1, c2, c3, c4, c5 = st.columns(5)
     
@@ -152,7 +152,7 @@ if section == "📈 Descripción General":
     st.markdown("---")
     
     # Gráfico de distribución de clusters
-    st.subheader("📊 Distribución por Categoría Semántica")
+    st.subheader(" Distribución por Categoría Semántica")
     
     counts_sem = df_filtered[COL_CAT_SEM].value_counts().reset_index()
     counts_sem.columns = ["categoria_semantica", "count"]
@@ -170,7 +170,7 @@ if section == "📈 Descripción General":
     st.plotly_chart(fig_bar, use_container_width=True)
     
     # Estadísticas rápidas por cluster
-    st.subheader("📋 Estadísticas por Cluster Semántico")
+    st.subheader(" Estadísticas por Cluster Semántico")
     
     cluster_stats = []
     for cluster in df_filtered[COL_CAT_SEM].unique():
@@ -189,8 +189,8 @@ if section == "📈 Descripción General":
 # ============================================================
 # SECCIÓN 2: SANKEY MEJORADO
 # ============================================================
-elif section == "🔀 Sankey - Reorganización Semántica":
-    st.subheader("🔄 Reorganización Semántica: Categorías Originales → Categorías Semánticas")
+elif section == " Sankey - Reorganización Semántica":
+    st.subheader(" Reorganización Semántica: Categorías Originales → Categorías Semánticas")
     
     # Función mejorada para Sankey con colores
     def prepare_sankey_with_colors(df, source_col, target_col, top_src, top_tgt):
@@ -280,7 +280,7 @@ elif section == "🔀 Sankey - Reorganización Semántica":
         st.plotly_chart(fig_sankey, use_container_width=True)
         
         # Análisis de patrones
-        st.subheader("🎯 Patrones de Reclasificación Descubiertos")
+        st.subheader(" Patrones de Reclasificación Descubiertos")
         
         category_dispersion = {}
         for category in df_filtered[COL_CAT_ORIGINAL].unique():
@@ -299,8 +299,8 @@ elif section == "🔀 Sankey - Reorganización Semántica":
 # ============================================================
 # SECCIÓN 3: MÉTRICAS DE CALIDAD
 # ============================================================
-elif section == "📊 Métricas de Calidad":
-    st.subheader("🧪 Validación del Clustering Semántico")
+elif section == " Métricas de Calidad":
+    st.subheader(" Validación del Clustering Semántico")
     
     # Calcular métricas de calidad
     silhouette_avg = df_filtered[COL_SILHOUETTE].mean()
@@ -328,7 +328,7 @@ elif section == "📊 Métricas de Calidad":
     st.markdown("---")
     
     # Gráfico de Silhouette Score por cluster
-    st.subheader("📈 Silhouette Score por Categoría Semántica")
+    st.subheader(" Silhouette Score por Categoría Semántica")
     
     silhouette_by_cluster = df_filtered.groupby(COL_CAT_SEM)[COL_SILHOUETTE].mean().sort_values()
     
@@ -345,7 +345,7 @@ elif section == "📊 Métricas de Calidad":
     st.plotly_chart(fig_silhouette, use_container_width=True)
     
     # Distribución de tamaños de cluster
-    st.subheader("🍕 Distribución de Tamaños de Clusters")
+    st.subheader(" Distribución de Tamaños de Clusters")
     
     col_size, col_quality = st.columns(2)
     
@@ -381,8 +381,8 @@ elif section == "📊 Métricas de Calidad":
 # ============================================================
 # SECCIÓN 4: NUBES DE PALABRAS
 # ============================================================
-elif section == "☁️ Nubes de Palabras":
-    st.subheader("🔤 Nube de Palabras por Categoría Semántica")
+elif section == " Nubes de Palabras":
+    st.subheader(" Nube de Palabras por Categoría Semántica")
     
     col1, col2 = st.columns([1, 3])
     
@@ -425,8 +425,8 @@ elif section == "☁️ Nubes de Palabras":
 # ============================================================
 # SECCIÓN 5: ANÁLISIS COMPARATIVO
 # ============================================================
-elif section == "⚖️ Análisis Comparativo":
-    st.subheader("🔄 Comparación: Categorías Originales vs Semánticas")
+elif section == " Análisis Comparativo":
+    st.subheader(" Comparación: Categorías Originales vs Semánticas")
     
     col_eff1, col_eff2, col_eff3 = st.columns(3)
     
@@ -445,7 +445,7 @@ elif section == "⚖️ Análisis Comparativo":
     st.markdown("---")
     
     # Gráfico de comparación de distribución
-    st.subheader("📊 Distribución: Original vs Semántico")
+    st.subheader(" Distribución: Original vs Semántico")
     
     col_dist1, col_dist2 = st.columns(2)
     
@@ -480,7 +480,7 @@ elif section == "⚖️ Análisis Comparativo":
     st.markdown("---")
     
     # Análisis de dispersión
-    st.subheader("🎯 Análisis de Coherencia Semántica")
+    st.subheader(" Análisis de Coherencia Semántica")
     
     category_dispersion = {}
     for category in df_filtered[COL_CAT_ORIGINAL].unique():
@@ -495,13 +495,13 @@ elif section == "⚖️ Análisis Comparativo":
     col_problem, col_coherent = st.columns(2)
     
     with col_problem:
-        st.write("**⚠️ Categorías Más Problemáticas**")
+        st.write("** Categorías Más Problemáticas**")
         top_problematic = dispersion_df.head(5)
         for _, row in top_problematic.iterrows():
             st.error(f"**{row['Categoría']}**: {row['Categorías_Semánticas_Diferentes']} categorías semánticas")
     
     with col_coherent:
-        st.write("**✅ Categorías Más Coherentes**")
+        st.write("** Categorías Más Coherentes**")
         top_coherent = dispersion_df[dispersion_df['Categorías_Semánticas_Diferentes'] > 0].tail(5)
         for _, row in top_coherent.iterrows():
             st.success(f"**{row['Categoría']}**: {row['Categorías_Semánticas_Diferentes']} categoría(s) semántica(s)")
@@ -509,8 +509,8 @@ elif section == "⚖️ Análisis Comparativo":
 # ============================================================
 # SECCIÓN 6: DETALLE POR CLUSTER
 # ============================================================
-elif section == "🔍 Detalle por Cluster":
-    st.subheader("🔬 Análisis Detallado por Categoría Semántica")
+elif section == " Detalle por Cluster":
+    st.subheader(" Análisis Detallado por Categoría Semántica")
     
     selected_cluster = st.selectbox(
         "Selecciona una categoría semántica para análisis profundo:",
@@ -541,7 +541,7 @@ elif section == "🔍 Detalle por Cluster":
         st.markdown("---")
         
         # Análisis de composición
-        st.subheader("📊 Composición del Cluster")
+        st.subheader(" Composición del Cluster")
         
         col_comp1, col_comp2 = st.columns(2)
         
@@ -579,7 +579,7 @@ elif section == "🔍 Detalle por Cluster":
         st.markdown("---")
         
         # Empleos representativos
-        st.subheader("👨‍💼 Empleos Representativos del Cluster")
+        st.subheader(" Empleos Representativos del Cluster")
         
         representative_jobs = cluster_data.nlargest(5, COL_SILHOUETTE)[[COL_TITULO, COL_CAT_ORIGINAL, COL_SILHOUETTE]]
         
@@ -600,8 +600,8 @@ elif section == "🔍 Detalle por Cluster":
 # ============================================================
 # SECCIÓN 7: EXPLORADOR DE EMPLEOS
 # ============================================================
-elif section == "👨‍💼 Explorador de Empleos":
-    st.subheader("🔎 Explorador de Empleos por Categoría Semántica")
+elif section == " Explorador de Empleos":
+    st.subheader(" Explorador de Empleos por Categoría Semántica")
     
     # Selector de cluster
     selected_cluster = st.selectbox(
@@ -628,7 +628,7 @@ elif section == "👨‍💼 Explorador de Empleos":
         st.markdown("---")
         
         # Filtros
-        st.subheader("🎯 Filtros de Búsqueda")
+        st.subheader(" Filtros de Búsqueda")
         
         col_filter1, col_filter2, col_filter3 = st.columns(3)
         
@@ -676,7 +676,7 @@ elif section == "👨‍💼 Explorador de Empleos":
         # Limitar a 50 empleos
         empleos_a_mostrar = filtered_data.head(50)
         
-        st.subheader(f"📋 Resultados: {len(empleos_a_mostrar)} empleos encontrados")
+        st.subheader(f" Resultados: {len(empleos_a_mostrar)} empleos encontrados")
         
         # Mostrar tabla
         columnas_mostrar = [COL_TITULO, COL_CAT_ORIGINAL, COL_EMPRESA, COL_UBICACION, COL_SALARIO, COL_SILHOUETTE]
@@ -698,7 +698,7 @@ elif section == "👨‍💼 Explorador de Empleos":
         )
         
         # Información adicional
-        st.subheader("📊 Resumen de los Resultados")
+        st.subheader(" Resumen de los Resultados")
         
         col_sum1, col_sum2 = st.columns(2)
         
@@ -726,9 +726,9 @@ elif section == "👨‍💼 Explorador de Empleos":
 # ============================================================
 # SECCIÓN 8: EXPORTAR RESULTADOS
 # ============================================================
-elif section == "💾 Exportar Resultados":
-    st.subheader("📥 Exportar Resultados Completos")
-    
+elif section == " Exportar Resultados":
+    st.subheader(" Exportar Resultados Completos")
+
     # Crear DataFrame para exportación
     columnas_exportar = [
         COL_TITULO, COL_CAT_ORIGINAL, COL_EMPRESA, COL_UBICACION, 
@@ -775,14 +775,14 @@ elif section == "💾 Exportar Resultados":
     st.dataframe(summary_df, use_container_width=True)
     
     # Opciones de descarga
-    st.subheader("💿 Descargar Resultados")
+    st.subheader(" Descargar Resultados")
     
     col_dl1, col_dl2 = st.columns(2)
     
     with col_dl1:
         csv_completo = df_exportar.to_csv(index=False, encoding='utf-8-sig')
         st.download_button(
-            label="📥 Dataset Completo (CSV)",
+            label=" Dataset Completo (CSV)",
             data=csv_completo,
             file_name="clustering_semantico_completo.csv",
             mime='text/csv',
@@ -792,7 +792,7 @@ elif section == "💾 Exportar Resultados":
     with col_dl2:
         csv_resumen = summary_df.to_csv(index=False, encoding='utf-8-sig')
         st.download_button(
-            label="📊 Resumen de Categorías (CSV)",
+            label=" Resumen de Categorías (CSV)",
             data=csv_resumen,
             file_name="resumen_categorias_semanticas.csv",
             mime='text/csv',
@@ -800,7 +800,7 @@ elif section == "💾 Exportar Resultados":
         )
     
     # Información de archivos
-    with st.expander("ℹ️ Detalles de los archivos"):
+    with st.expander(" Detalles de los archivos"):
         st.markdown("""
         **Dataset Completo (clustering_semantico_completo.csv):**
         - Todos los empleos analizados
@@ -820,9 +820,10 @@ elif section == "💾 Exportar Resultados":
 # ============================================================
 st.sidebar.markdown("---")
 st.sidebar.markdown("""
-**🔮 Próximos Pasos:**
+** Próximos Pasos:**
 - Análisis temporal de tendencias
 - Detección de nichos emergentes
 - Sistema de recomendación semántica
 - API para búsqueda inteligente
 """)
+
