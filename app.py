@@ -127,14 +127,6 @@ if section == " Descripción General":
     
     c1, c2, c3, c4, c5 = st.columns(5)
     
-    with c1:
-        silhouette_avg = df_filtered[COL_SILHOUETTE].mean()
-        st.metric(
-            label="Precisión Semántica",
-            value=f"{silhouette_avg:.1%}",
-            delta=f"+{(silhouette_avg - 0.5)*100:.0f}% vs Aleatorio"
-        )
-    
     with c2:
         st.metric("Total registros", len(df_filtered))
     
@@ -143,6 +135,14 @@ if section == " Descripción General":
     
     with c4:
         st.metric("Categorías semánticas", df_filtered[COL_CAT_SEM].nunique())
+
+    with c1:
+        silhouette_avg = df_filtered[COL_SILHOUETTE].mean()
+        st.metric(
+            label="Precisión Semántica",
+            value=f"{silhouette_avg:.1%}",
+            delta=f"+{(silhouette_avg - 0.5)*100:.0f}% vs Aleatorio"
+        )
     
     with c5:
         efficiency_gain = ((df_filtered[COL_CAT_ORIGINAL].nunique() - df_filtered[COL_CAT_SEM].nunique()) / 
@@ -501,10 +501,10 @@ elif section == " Análisis Comparativo":
             st.error(f"**{row['Categoría']}**: {row['Categorías_Semánticas_Diferentes']} categorías semánticas")
     
     with col_coherent:
-        st.write("** Categorías Más Coherentes**")
+        st.write("** Categorias con menor dispersion**")
         top_coherent = dispersion_df[dispersion_df['Categorías_Semánticas_Diferentes'] > 0].tail(5)
         for _, row in top_coherent.iterrows():
-            st.success(f"**{row['Categoría']}**: {row['Categorías_Semánticas_Diferentes']} categoría(s) semántica(s)")
+            st.error(f"**{row['Categoría']}**: {row['Categorías_Semánticas_Diferentes']} categoría(s) semántica(s)")
 
 # ============================================================
 # SECCIÓN 6: DETALLE POR CLUSTER
@@ -578,10 +578,10 @@ elif section == " Detalle por Cluster":
         
         st.markdown("---")
         
-        # Empleos representativos
-        st.subheader(" Empleos Representativos del Cluster")
+       """ # Empleos representativos
+     #   st.subheader(" Empleos Representativos del Cluster")
         
-        representative_jobs = cluster_data.nlargest(5, COL_SILHOUETTE)[[COL_TITULO, COL_CAT_ORIGINAL, COL_SILHOUETTE]]
+      #  representative_jobs = cluster_data.nlargest(5, COL_SILHOUETTE)[[COL_TITULO, COL_CAT_ORIGINAL, COL_SILHOUETTE]]
         
         for idx, job in representative_jobs.iterrows():
             col_job1, col_job2, col_job3 = st.columns([3, 1, 1])
@@ -595,7 +595,7 @@ elif section == " Detalle por Cluster":
             with col_job3:
                 st.write(f"Score: `{job[COL_SILHOUETTE]:.3f}`")
             
-            st.markdown("---")
+            st.markdown("---") """
 
 # ============================================================
 # SECCIÓN 7: EXPLORADOR DE EMPLEOS
@@ -697,7 +697,7 @@ elif section == " Explorador de Empleos":
             height=600
         )
         
-        # Información adicional
+     """   # Información adicional
         st.subheader(" Resumen de los Resultados")
         
         col_sum1, col_sum2 = st.columns(2)
@@ -721,7 +721,7 @@ elif section == " Explorador de Empleos":
                     nbins=10,
                     color_discrete_sequence=['#4ECDC4']
                 )
-                st.plotly_chart(fig_scores, use_container_width=True)
+                st.plotly_chart(fig_scores, use_container_width=True) """
 
 # ============================================================
 # SECCIÓN 8: EXPORTAR RESULTADOS
@@ -826,4 +826,5 @@ st.sidebar.markdown("""
 - Sistema de recomendación semántica
 - API para búsqueda inteligente
 """)
+
 
