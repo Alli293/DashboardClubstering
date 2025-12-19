@@ -578,24 +578,7 @@ elif section == " Detalle por Cluster":
         
         st.markdown("---")
         
-       """ # Empleos representativos
-     #   st.subheader(" Empleos Representativos del Cluster")
-        
-      #  representative_jobs = cluster_data.nlargest(5, COL_SILHOUETTE)[[COL_TITULO, COL_CAT_ORIGINAL, COL_SILHOUETTE]]
-        
-        for idx, job in representative_jobs.iterrows():
-            col_job1, col_job2, col_job3 = st.columns([3, 1, 1])
-            
-            with col_job1:
-                st.write(f"**{job[COL_TITULO]}**")
-            
-            with col_job2:
-                st.write(f"`{job[COL_CAT_ORIGINAL]}`")
-            
-            with col_job3:
-                st.write(f"Score: `{job[COL_SILHOUETTE]:.3f}`")
-            
-            st.markdown("---") """
+
 
 # ============================================================
 # SECCIÓN 7: EXPLORADOR DE EMPLEOS
@@ -697,31 +680,7 @@ elif section == " Explorador de Empleos":
             height=600
         )
         
-     """   # Información adicional
-        st.subheader(" Resumen de los Resultados")
-        
-        col_sum1, col_sum2 = st.columns(2)
-        
-        with col_sum1:
-            if len(empleos_a_mostrar) > 0:
-                cat_dist = empleos_a_mostrar[COL_CAT_ORIGINAL].value_counts()
-                fig_cat = px.pie(
-                    values=cat_dist.values,
-                    names=cat_dist.index,
-                    title="Distribución de Categorías en los Resultados"
-                )
-                st.plotly_chart(fig_cat, use_container_width=True)
-        
-        with col_sum2:
-            if len(empleos_a_mostrar) > 0:
-                fig_scores = px.histogram(
-                    empleos_a_mostrar,
-                    x=COL_SILHOUETTE,
-                    title="Distribución de Scores de Silueta",
-                    nbins=10,
-                    color_discrete_sequence=['#4ECDC4']
-                )
-                st.plotly_chart(fig_scores, use_container_width=True) """
+
 
 # ============================================================
 # SECCIÓN 8: EXPORTAR RESULTADOS
@@ -826,5 +785,6 @@ st.sidebar.markdown("""
 - Sistema de recomendación semántica
 - API para búsqueda inteligente
 """)
+
 
 
